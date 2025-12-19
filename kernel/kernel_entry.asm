@@ -1,7 +1,8 @@
-[bits 32]
-global _start   ; Le decimos al linker que esta etiqueta es pública
+[bits 32]       ; Ya está en modo protegido
+[extern main]   ; Se declara que el main está en otro archivo
 
-_start:         ; Este es el punto de entrada oficial
-    [extern main]
-    call main
-    jmp $
+_start:
+    call main   ; Se salta al main del código C
+    jmp $       ; En caso de que se cierre acaba ahí
+
+

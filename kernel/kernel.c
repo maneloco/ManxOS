@@ -1,11 +1,6 @@
-#include "utils/utils.h"
-#include "display/display.h"
-
 void main() {
-clear_screen();
-    kprint("Hola, soy display.h y funciono perfectamente");
-    
-    char buffer[10];
-    int_to_ascii(1234, buffer);
-    kprint_at(buffer, 0, 1);
+    unsigned char* video_memory = (unsigned char*) 0xb8000;
+    video_memory[0] = 'A';
+    video_memory[1] = 0x0f; // Para pintar de blanco
+    while(1);
 }
