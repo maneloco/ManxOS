@@ -1,30 +1,27 @@
-# Objetos que luego se unirán con el linker
-OBJ = kernel/kernel_entry.o \
-	  kernel/kernel.o
+SOURCES = $(wildcard kernel/drivers/*.c) kernel/kernel.c
+OBJ = kernel/kernel_entry.o $(SOURCES:.c=.o)
 
-# Banderas de compilación
-# -m32: Genera código de 32 bits (fundamental)
-# -ffreestanding: No uses la biblioteca estándar de C (no hay printf, etc.)
-# -fno-stack-protector: Desactiva la seguridad de pila que mencionamos antes
-CFLAGS = -m32 -ffreestanding -fno-pie -fno-pic -fno-stack-protector -c
+CFLAGS = -m32 -ffreestanding -fno-pie -fno-pic -fno-stack-protector -Ikernel/drivers -c
 
-os-image.bin: boot/boot.bin kernel/kernel.bin
-	cat boot/boot.bin kernel/kernel.bin > os-image.bin
+# La imagen depende de kernel.bin que está en la raíz
+os-image.bin: boot/boot.bin kernel.bin
+	cat boot/boot.bin kernel.bin > os-image.bin
 
-kernel/kernel.bin: ${OBJ} # Para crear el kernel.bin necesitamos que estén todos los objetos a unirf
-	ld -m elf_i386 -Ttext 0x1000 --oformat binary -o kernel/kernel.bin ${OBJ} # Le dice que es bare metal, que empiece ene l 0x1000 y en formato binario todos los objetos
+# Generamos kernel.bin directamente en la raíz del proyecto
+kernel.bin: ${OBJ}
+	ld -m elf_i386 -Ttext 0x1000 --oformat binary -o $@ ${OBJ}
 
-kernel/kernel.o: kernel/kernel.c
-	gcc ${CFLAGS} kernel/kernel.c -o kernel/kernel.o
+%.o: %.c
+	gcc ${CFLAGS} $< -o $@
 
 kernel/kernel_entry.o: kernel/kernel_entry.asm
-	nasm kernel/kernel_entry.asm -f elf32 -o kernel/kernel_entry.o # Crea el objeto en formato 32 bits
+	nasm $< -f elf32 -o $@
 
 boot/boot.bin: boot/boot.asm
-	nasm boot/boot.asm -f bin -I boot/ -o boot/boot.bin
+	nasm $< -f bin -I boot -o $@
 
 clean:
-	rm *.bin *.o
+	rm -rf *.bin kernel/*.o kernel/drivers/*.o boot/*.bin
 
 run: os-image.bin
 	qemu-system-i386 -drive format=raw,file=os-image.bin
