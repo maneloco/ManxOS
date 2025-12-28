@@ -15,7 +15,7 @@
 
 load_kernel:
     mov bx, KERNEL_OFFSET   ; Registro donde va a empezar a escribir
-    mov dh, 15              ; Número de sectores a leer (reserva 15 sectores para el kernel
+    mov dh, 50              ; Número de sectores a leer (reserva 15 sectores para el kernel
     mov dl, [BOOT_DRIVE]    ; Por si cambia el valor del dl lo volvemos a cargar el disco en el que va a escribir
     
     call disk_load          ; Lo guarda en disco

@@ -17,5 +17,8 @@ void print(char* message);
 void print_char(char c);
 void scroll();
 void update_cursor_hardware();
+void print_int(int n);
+void print_hex(int n);
+
 
 #endif
